@@ -14,7 +14,7 @@ int main()
 
     window.add(area);
     area.show();
-    Glib::RefPtr<Gdk::Pixbuf> image = Gdk::Pixbuf::create_from_file("/home/meip-users/Desktop/siryokukennsa.jpg", 1920, 1080);
+    Glib::RefPtr<Gdk::Pixbuf> image = Gdk::Pixbuf::create_from_file("github.png", 1920, 1080);
     image->saturate_and_pixelate(image, 0.0, false);
     area.signal_draw().connect([&](const Cairo::RefPtr<Cairo::Context>& cr) {
         Gdk::Cairo::set_source_pixbuf(cr, image, (area.get_width() - image->get_width()) / 2);
@@ -29,15 +29,15 @@ int main()
 
     int state = 0;
 
-    std::chrono::time_point start = std::chrono::steady_clock::now();
+    auto start = std::chrono::steady_clock::now();
 
     constexpr double time = 2;
 
 
     std::mt19937 rnd(std::random_device{}());
 
-    std::uniform_real_distribution<> l0_dist{0.1, 0.9};
-    std::uniform_real_distribution<> dl_dist{-0.25, 0.25};
+    std::uniform_real_distribution<> l0_dist{0.25, 0.75};
+    std::uniform_real_distribution<> dl_dist{-0.5, 0.5};
     std::uniform_real_distribution<> dt_dist{0.0, 3.0};
 
     double l0;
@@ -66,16 +66,14 @@ int main()
     },
         false);
     using sec = std::chrono::duration<double, std::ratio<1>>;
+    bool first_time = true;
     Glib::signal_timeout().connect([&] {
-        std::chrono::time_point now = std::chrono::steady_clock::now();
+        auto now = std::chrono::steady_clock::now();
         using namespace std::chrono_literals;
         switch (state) {
         case 0:
-            area.set_opacity(0);
-            if (now - start > 2s) {
-                state = 1;
-                answer = 0;
-                start = std::chrono::steady_clock::now();
+            if (first_time) {
+                dt = dt_dist(rnd);
                 do {
                     l0 = l0_dist(rnd);
                     dl = dl_dist(rnd);
@@ -84,27 +82,58 @@ int main()
                         break;
                     }
                 } while (true);
+                start = std::chrono::steady_clock::now();
+                area.set_opacity(l0);
+                first_time = false;
+            }
+            if (now - start > 3s) {
+                state = 1;
+                first_time = true;
             }
             break;
         case 1:
+            if (first_time) {
+                start = std::chrono::steady_clock::now();
+                first_time = false;
+                area.set_opacity(0);
+            }
+            if (now - start > 1s * dt) {
+                state = 2;
+                first_time = true;
+            }
+            break;
+        case 2:
+            if (first_time) {
+                start = std::chrono::steady_clock::now();
+                first_time = false;
+                area.set_opacity(l0 + dl);
+                answer = 0;
+            }
+            if (now - start > 3s || answer != 0) {
+                state = 3;
+                first_time = true;
+            }
+        case 3:
+            if (first_time) {
+                start = std::chrono::steady_clock::now();
+                first_time = false;
+                area.set_opacity(0);
+            }
+            if (now - start > 2s) {
 
-            if (now - start > 1s * time || answer != 0) {
                 constexpr const char* answers[] = {"no-answer", "left", "middle", "right"};
                 std::cout << "#id " << id
                           << " #time " << (std::chrono::duration_cast<sec>(now - start).count())
                           << " #start-lightness " << l0
-                          << " #answered-lightness " << area.get_opacity()
-                          << " #difference " << (area.get_opacity() - l0)
+                          << " #end-lightness " << l0 + dl
+                          << " #difference " << dl
                           << " #answer " << answer << " (" << answers[answer] << ")"
                           << std::endl;
-                state = 0;
-                answer = 0;
+
                 id++;
-                start = std::chrono::steady_clock::now();
-            } else {
-                area.set_opacity(l0 + dl * std::chrono::duration_cast<sec>(now - start).count() / time);
+                state = 0;
+                first_time = true;
             }
-            break;
         }
         return true;
     },
