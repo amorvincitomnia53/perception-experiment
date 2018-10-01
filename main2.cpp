@@ -31,7 +31,7 @@ int main()
 
     std::chrono::time_point start = std::chrono::steady_clock::now();
 
-    constexpr double time = 5;
+    constexpr double time = 2;
 
 
     std::mt19937 rnd(std::random_device{}());

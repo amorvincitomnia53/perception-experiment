@@ -14,7 +14,7 @@ int main()
 
     window.add(area);
     area.show();
-    Glib::RefPtr<Gdk::Pixbuf> image = Gdk::Pixbuf::create_from_file("siryokukennsa.jpg", 1920, 1080);
+    Glib::RefPtr<Gdk::Pixbuf> image = Gdk::Pixbuf::create_from_file("github.png", 1920, 1080);
     image->saturate_and_pixelate(image, 0.0, false);
     area.signal_draw().connect([&](const Cairo::RefPtr<Cairo::Context>& cr) {
         Gdk::Cairo::set_source_pixbuf(cr, image, (area.get_width() - image->get_width()) / 2);
@@ -36,8 +36,8 @@ int main()
 
     std::mt19937 rnd(std::random_device{}());
 
-    std::uniform_real_distribution<> l0_dist{0.1, 0.9};
-    std::uniform_real_distribution<> dl_dist{-0.25, 0.25};
+    std::uniform_real_distribution<> l0_dist{0.25, 0.75};
+    std::uniform_real_distribution<> dl_dist{-0.5, 0.5};
 
     double l0;
     double dl;
