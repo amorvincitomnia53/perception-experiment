@@ -14,7 +14,7 @@ int main()
 
     window.add(area);
     area.show();
-    Glib::RefPtr<Gdk::Pixbuf> image = Gdk::Pixbuf::create_from_file("/home/meip-users/Desktop/siryokukennsa.jpg", 1920, 1080);
+    Glib::RefPtr<Gdk::Pixbuf> image = Gdk::Pixbuf::create_from_file("siryokukennsa.jpg", 1920, 1080);
     image->saturate_and_pixelate(image, 0.0, false);
     area.signal_draw().connect([&](const Cairo::RefPtr<Cairo::Context>& cr) {
         Gdk::Cairo::set_source_pixbuf(cr, image, (area.get_width() - image->get_width()) / 2);
