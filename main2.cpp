@@ -31,14 +31,12 @@ int main()
 
     auto start = std::chrono::steady_clock::now();
 
-    constexpr double time = 2;
-
 
     std::mt19937 rnd(std::random_device{}());
 
     std::uniform_real_distribution<> l0_dist{0.25, 0.75};
     std::uniform_real_distribution<> dl_dist{-0.5, 0.5};
-    std::uniform_real_distribution<> dt_dist{0.0, 3.0};
+    std::uniform_real_distribution<> dt_dist{0.0, 5.0};
 
     double l0;
     double dl;
@@ -113,17 +111,19 @@ int main()
                 state = 3;
                 first_time = true;
             }
+            break;
         case 3:
             if (first_time) {
                 start = std::chrono::steady_clock::now();
                 first_time = false;
                 area.set_opacity(0);
             }
+            //            std::cout<<"!"<<std::chrono::duration_cast<sec>(now-start).count()<<std::endl;
             if (now - start > 2s) {
 
                 constexpr const char* answers[] = {"no-answer", "left", "middle", "right"};
                 std::cout << "#id " << id
-                          << " #time " << (std::chrono::duration_cast<sec>(now - start).count())
+                          << " #time " << dt
                           << " #start-lightness " << l0
                           << " #end-lightness " << l0 + dl
                           << " #difference " << dl
@@ -134,6 +134,7 @@ int main()
                 state = 0;
                 first_time = true;
             }
+            break;
         }
         return true;
     },
