@@ -41,3 +41,5 @@ craft_shell_history
 cmake-build-debug
 
 !binary/
+
+.ipynb_checkpoints
